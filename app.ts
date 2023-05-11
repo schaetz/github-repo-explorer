@@ -1,7 +1,8 @@
 import express, {Express, Request, Response} from "express";
-import {getLastWeeksMostPopularRepos} from "./lib/github-connector";
+import {getLastWeeksMostPopularRepos, getRepoById} from "./lib/github-connector";
 import {getCountQueryParameter} from "./lib/param-helper";
-import {InvalidUserParameterError} from "./lib/types";
+import {InvalidUserParameterError, Repository} from "./lib/types";
+import {AxiosError} from "axios";
 
 const app: Express = express();
 const port = 8000;
@@ -17,17 +18,37 @@ app.get('/', (req: Request, res: Response) => {
     res.send('GitHub repository explorer')
 })
 
-app.get('/repositories/popular', async (req: Request, res: Response) => {
+app.get('/repos/id/:repoId', async (req: Request, res: Response) => {
     try {
-        const count = getCountQueryParameter(req);
-        const result = await getLastWeeksMostPopularRepos(count);
-        res.send(result);
+        const result: Repository | AxiosError = await getRepoById(req.params['repoId']);
+        _handleRequestResult(result, res);
     } catch (e) {
-        if (e instanceof InvalidUserParameterError) {
-            res.sendStatus(400);
-        } else {
-            res.sendStatus(404);
-        }
+        _handleErrors(e, res);
     }
 });
 
+app.get('/repos/popular', async (req: Request, res: Response) => {
+    try {
+        const count = getCountQueryParameter(req);
+        const result: Repository[] | AxiosError = await getLastWeeksMostPopularRepos(count);
+        _handleRequestResult(result, res);
+    } catch (e) {
+        _handleErrors(e, res);
+    }
+});
+
+const _handleRequestResult = (result: unknown, response: Response) => {
+    if (result instanceof AxiosError) {
+        response.sendStatus(404);
+    } else {
+        response.send(result);
+    }
+}
+
+const _handleErrors = (e: unknown, response: Response) => {
+    if (e instanceof InvalidUserParameterError) {
+        response.sendStatus(400);
+    } else {
+        response.sendStatus(500);
+    }
+}

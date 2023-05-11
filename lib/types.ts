@@ -1,5 +1,5 @@
 export type Repository = {
-    id: number;
+    id: string;
     name: string;
     githubUrl: string;
     description: string;

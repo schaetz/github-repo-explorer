@@ -4,6 +4,14 @@ import {Repository} from "./types";
 
 const githubApiUrl = 'https://api.github.com';
 
+export const getRepoById = async (id: string) => {
+    const url = new URL(`/repositories/${id}`, githubApiUrl);
+
+    return await axios.get(url.toString())
+        .then((response) => _mapSingleSearchResultItemToRepository(response.data))
+        .catch((error) => error);
+};
+
 export const getLastWeeksMostPopularRepos = async (count: number) => {
     const now = new Date();
     const createdDateString = now.oneWeekBefore().toStringWithDateOnly();
