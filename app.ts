@@ -8,7 +8,12 @@ const app: Express = express();
 const port = 8000;
 export const defaultSearchCount = 10;
 export const maxSearchCount = 30;
-// const storedRepositoryIDs: Set<number> = new Set<number>();
+
+const savedRepositoriesById: Map<string,Repository> = new Map<string,Repository>();
+
+
+app.use(express.json());
+app.use(express.urlencoded());
 
 app.listen(port, () => {
     console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
@@ -36,6 +41,34 @@ app.get('/repos/popular', async (req: Request, res: Response) => {
         _handleErrors(e, res);
     }
 });
+
+app.get('/repos/saved', async (req: Request, res: Response) => {
+    try {
+        res.send(Array.from(savedRepositoriesById.values()));
+    } catch (e) {
+        _handleErrors(e, res);
+    }
+});
+
+app.post('/repos/saved', async (req: Request, res: Response) => {
+    console.log(req.body);
+    if (!req.hasOwnProperty('body') || !req.body.hasOwnProperty('repoId')) {
+        res.send(400);
+        return;
+    }
+    try {
+        const result: Repository | AxiosError = await getRepoById(req.body['repoId']);
+        if (result instanceof AxiosError) {
+            res.send(400);
+        } else {
+            savedRepositoriesById.set(result.id, result);
+            res.send(200);
+        }
+    } catch (e) {
+        _handleErrors(e, res);
+    }
+});
+
 
 const _handleRequestResult = (result: unknown, response: Response) => {
     if (result instanceof AxiosError) {
