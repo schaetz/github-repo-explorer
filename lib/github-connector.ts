@@ -12,12 +12,9 @@ export const getRepoById = async (id: string) => {
         .catch((error) => error);
 };
 
-export const getLastWeeksMostPopularRepos = async (count: number) => {
-    const now = new Date();
-    const createdDateString = now.oneWeekBefore().toStringWithDateOnly();
-
+export const getLastWeeksMostPopularRepos = async (count: number, language?: string) => {
     const url = new URL('/search/repositories', githubApiUrl);
-    url.searchParams.set('q', `created:>${createdDateString}`);
+    url.searchParams.set('q', _getSearchFilterString(count, language));
     url.searchParams.set('sort', 'stars');
     url.searchParams.set('order', 'desc');
 
@@ -25,6 +22,20 @@ export const getLastWeeksMostPopularRepos = async (count: number) => {
         .then((response) => _getRepositoriesFromSearchResults(response.data, count))
         .catch((error) => error);
 };
+
+const _getSearchFilterString = (count: number, language?: string) => {
+    const now = new Date();
+    const createdDateString = now.oneWeekBefore().toStringWithDateOnly();
+
+    const filterByCreationDate = `created:>${createdDateString}`;
+    const filterByLanguage = !!language ? `language:${language}` : '';
+
+    const allFilters = [filterByCreationDate];
+    if (filterByLanguage) {
+        allFilters.push(filterByLanguage);
+    }
+    return allFilters.join(' ');
+}
 
 const _getRepositoriesFromSearchResults = (data: any, count: number) => {
   if (!data.hasOwnProperty('items') || !Array.isArray(data.items)) {
@@ -42,6 +53,7 @@ const _mapSingleSearchResultItemToRepository = (item: any) => {
         name: item['name'],
         githubUrl: item['html_url'],
         description: item['description'],
+        language: item['language'],
         stars: item['stargazers_count'],
     } as Repository;
 }

@@ -15,3 +15,10 @@ export const getCountQueryParameter = (req: Request) => {
     }
     return Math.min(count, maxSearchCount);
 }
+
+export const getLanguageParameter = (req: Request) => {
+    if (!req.query.hasOwnProperty('lang') || typeof req.query.lang !== 'string') {
+        return undefined;
+    }
+    return req.query.lang;
+}

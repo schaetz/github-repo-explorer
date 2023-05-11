@@ -1,6 +1,6 @@
 import express, {Express, Request, Response} from "express";
 import {getLastWeeksMostPopularRepos, getRepoById} from "./lib/github-connector";
-import {getCountQueryParameter} from "./lib/param-helper";
+import {getCountQueryParameter, getLanguageParameter} from "./lib/param-helper";
 import {InvalidUserParameterError, Repository} from "./lib/types";
 import {AxiosError} from "axios";
 
@@ -35,7 +35,8 @@ app.get('/repos/id/:repoId', async (req: Request, res: Response) => {
 app.get('/repos/popular', async (req: Request, res: Response) => {
     try {
         const count = getCountQueryParameter(req);
-        const result: Repository[] | AxiosError = await getLastWeeksMostPopularRepos(count);
+        const language = getLanguageParameter(req);
+        const result: Repository[] | AxiosError = await getLastWeeksMostPopularRepos(count,language);
         _handleRequestResult(result, res);
     } catch (e) {
         _handleErrors(e, res);

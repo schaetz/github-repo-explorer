@@ -3,6 +3,7 @@ export type Repository = {
     name: string;
     githubUrl: string;
     description: string;
+    language: string;
     stars: number;
 }
 
