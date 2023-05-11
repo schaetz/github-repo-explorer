@@ -14,7 +14,7 @@ export const getRepoById = async (id: string) => {
 
 export const getLastWeeksMostPopularRepos = async (count: number, language?: string) => {
     const url = new URL('/search/repositories', githubApiUrl);
-    url.searchParams.set('q', _getSearchFilterString(count, language));
+    url.searchParams.set('q', _getSearchFilterString(language));
     url.searchParams.set('sort', 'stars');
     url.searchParams.set('order', 'desc');
 
@@ -23,7 +23,7 @@ export const getLastWeeksMostPopularRepos = async (count: number, language?: str
         .catch((error) => error);
 };
 
-const _getSearchFilterString = (count: number, language?: string) => {
+const _getSearchFilterString = (language?: string) => {
     const now = new Date();
     const createdDateString = now.oneWeekBefore().toStringWithDateOnly();
 
