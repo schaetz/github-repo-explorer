@@ -15,9 +15,11 @@ const savedRepositoriesById: Map<string,Repository> = new Map<string,Repository>
 app.use(express.json());
 app.use(express.urlencoded());
 
-app.listen(port, () => {
-    console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
-});
+if (process.env.NODE_ENV !== 'test') {
+    app.listen(port, () => {
+        console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
+    });
+}
 
 app.get('/', (req: Request, res: Response) => {
     res.send('GitHub repository explorer')
