@@ -1,7 +1,15 @@
-type Repository = {
+export type Repository = {
     id: number;
-    name: String;
-    githubUrl: String;
-    description: String;
+    name: string;
+    githubUrl: string;
+    description: string;
     stars: number;
 }
+
+export class InvalidUserParameterError extends Error {
+    constructor(message: string) {
+        super(message);
+        this.message = message;
+    }
+}
+InvalidUserParameterError.prototype.name = 'InvalidUserParameterError';
